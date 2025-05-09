@@ -17,6 +17,7 @@ def download_twse_pdfs(co_id: str, year: str, output_dir: str = "pdfs", headless
     list_url = f"{base_url}/server-java/t57sb01?step=1&colorchg=1&seamon=&mtype=A&co_id={co_id}&year={year}"
 
     # --- Step 2: Ensure the output directory exists
+    output_dir = os.path.join('pdfs', output_dir)
     os.makedirs(output_dir, exist_ok=True)
 
     # --- Step 3: Set up a headless Chrome browser using Selenium
