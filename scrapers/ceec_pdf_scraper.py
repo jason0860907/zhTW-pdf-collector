@@ -63,6 +63,7 @@ def download_ceec_pdfs(
     output_dir: str = "pdfs",
     delay: float = 0.8,
 ):
+    output_dir = os.path.join('pdfs', output_dir)
     os.makedirs(output_dir, exist_ok=True)
     print("▶ 腳本位置      :", Path(__file__).resolve())
     print("▶ 目前工作目錄  :", Path.cwd())
