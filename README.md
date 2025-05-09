@@ -2,6 +2,49 @@
 
 本專案包含一系列 Python 腳本，用於從台灣相關的公開資訊網站下載 PDF 文件。
 
+## 專案設定與執行
+
+本專案使用 [uv](https://github.com/astral-sh/uv) 作為套件管理及虛擬環境工具。
+
+### 1. 安裝 uv
+
+如果您尚未安裝 `uv`，請參考其官方文件進行安裝。例如，透過 pipx (建議方式) 或 pip：
+
+### 2. 設定虛擬環境並安裝依賴
+
+a. **建立虛擬環境**:
+   在專案根目錄執行以下指令以建立虛擬環境。此處指定使用 Python 3.12，您可以根據您的環境調整版本。`--seed` 選項會讓 `uv` 在建立環境時預先安裝 `pip` 和 `setuptools`。
+
+   ```bash
+   uv venv -p 3.12 --seed
+   ```
+   這會在專案根目錄建立一個名為 `.venv` 的虛擬環境資料夾。
+
+b. **啟用虛擬環境**:
+   根據您的作業系統和 shell，啟用虛擬環境：
+
+   *   **Linux/macOS (bash/zsh):**
+       ```bash
+       source .venv/bin/activate
+       ```
+   *   **Windows (cmd.exe):**
+       ```bash
+       .venv\Scripts\activate.bat
+       ```
+   *   **Windows (PowerShell):**
+       ```bash
+       .venv\Scripts\Activate.ps1
+       ```
+
+c. **同步依賴套件**:
+   啟用虛擬環境後，執行以下指令來安裝 `pyproject.toml` 檔案中定義的所有依賴套件：
+
+   ```bash
+   uv sync
+   ```
+
+完成以上步驟後，您就可以執行專案中的腳本了。
+
 ## 工具列表
 
 1.  **CEEC PDF Scraper (`scrapers/ceec_pdf_scraper.py`)**: 從大考中心（CEEC）網站下載歷屆試題等 PDF 文件。
@@ -54,44 +97,26 @@ python scrapers/ceec_pdf_scraper.py --xsmsid <XSMSID> [OPTIONS]
     python scrapers/ceec_pdf_scraper.py --xsmsid 0J052427633128416650 --pages all --delay 1.5
     ```
 
-### 依賴套件
-
-*   `requests`
-*   `beautifulsoup4`
-
-您可以使用 pip 安裝：
-```bash
-pip install requests beautifulsoup4
-```
-
 ---
 
 ## 2. TWSE PDF Scraper
 
 此 Python 工具讓您能自動從[台灣證券交易所公開資訊觀測站](https://mops.twse.com.tw/mops/#/web/t57sb01_q1)（財務報告書）下載公司揭露的 PDF 文件。它使用 **Selenium** 處理基於 JavaScript 的導航，並使用 **requests** 高效下載 PDF 檔案。
 
-### 環境需求
+### 環境需求 (TWSE Scraper 特定)
 
-*   Python 3.7+
+*   Python 3.7+ (專案整體建議使用 `pyproject.toml` 中指定的版本，例如 3.12)
 *   已安裝 Google Chrome 瀏覽器
 *   ChromeDriver (版本必須與您的 Chrome 瀏覽器匹配)
-
-### 依賴套件
-
-您可以使用 pip 安裝所需套件：
-
-```bash
-pip install selenium requests
-```
 
 您同時必須已安裝 **ChromeDriver** 並將其設定在系統路徑中。
 
 > 您可以從此處下載 ChromeDriver: [https://chromedriver.chromium.org/downloads](https://chromedriver.chromium.org/downloads) (請注意，自 Chrome 115 版起，ChromeDriver 的發布已整合至 Chrome 本身的發布流程中，請參考 [Chrome for Testing availability dashboard](https://googlechromelabs.github.io/chrome-for-testing/))
 
-### 設定
+### 設定 (TWSE Scraper 特定)
 
 1.  確保 `chromedriver` 已安裝且您的 Chrome 瀏覽器為最新版本。
-2.  安裝上述依賴套件。
+2.  (依賴套件已透過上述 `uv pip sync` 統一安裝)
 
 ### 使用方法
 
@@ -134,7 +159,3 @@ python scrapers/twse_pdf_scraper.py --co_id 2330 --year 111 --output tsmc_2022 -
 *   請避免過快發送請求；腳本內建的延遲有助於控制請求頻率。
 
 ---
-
-## 專案結構建議
-
-建議將腳本整理如下：
