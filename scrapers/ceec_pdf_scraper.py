@@ -13,7 +13,8 @@ Example:
     python ceec_pdf_scraper.py --xsmsid 0J052427633128416650 --pages 1-3
 
     # 把整個列表 24 頁全掃（會自動停在空頁）
-    python ceec_pdf_scraper.py --xsmsid 0J052427633128416650 --pages all --output ceec_pdfs
+    python scrapers/ceec_pdf_scraper.py --xsmsid 0J052424829869345634 --pages all --output ceec_pdfs1
+    python scrapers/ceec_pdf_scraper.py --xsmsid 0J052427633128416650 --pages all --output ceec_pdfs2
 
     # 把 delay 調長一點，避免太快
     python ceec_pdf_scraper.py --xsmsid 0J052427633128416650 --pages all --delay 1.5
@@ -56,6 +57,16 @@ def iter_page_numbers(pages_arg: Optional[str]):
             yield n
     else:
         yield int(pages_arg)
+
+def sanitize_filename(text):
+    """
+    將文字轉換為合法的檔案名稱
+    """
+    # 移除不合法的檔案名稱字元
+    text = re.sub(r'[\\/*?:"<>|]', "", text)
+    # 將多餘的空白替換為單一底線
+    text = re.sub(r'\s+', "_", text.strip())
+    return text
 
 def download_ceec_pdfs(
     xsmsid: str,
@@ -103,7 +114,24 @@ def download_ceec_pdfs(
                 continue  # 有些頁面會重複列相同檔案
             pdf_seen.add(pdf_url)
 
-            filename = os.path.basename(urlparse(pdf_url).path)
+            # 使用連結文字作為檔案名稱基礎
+            title_text = a.text.strip()
+            original_filename = os.path.basename(urlparse(pdf_url).path)
+            file_ext = os.path.splitext(original_filename)[1]  # 保留原始副檔名
+            
+            # 建立新檔名
+            if 'title' in a.attrs and a['title'].strip():
+                # 優先使用 title 屬性作為檔名（包含完整資訊）
+                clean_title = sanitize_filename(a['title'].strip())
+                filename = f"{clean_title}{file_ext}"
+            elif title_text:
+                # 次之使用連結文字作為檔名
+                clean_title = sanitize_filename(title_text)
+                filename = f"{clean_title}{file_ext}"
+            else:
+                # 若沒有連結文字，才使用原始檔名
+                filename = original_filename
+            
             filepath = os.path.join(output_dir, filename)
 
             print(f"    ↳ 下載 {filename} ...", end=" ", flush=True)
