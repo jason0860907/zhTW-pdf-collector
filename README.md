@@ -12,36 +12,15 @@
 
 ### 2. 設定虛擬環境並安裝依賴
 
-a. **建立虛擬環境**:
-   在專案根目錄執行以下指令以建立虛擬環境。此處指定使用 Python 3.12，您可以根據您的環境調整版本。`--seed` 選項會讓 `uv` 在建立環境時預先安裝 `pip` 和 `setuptools`。
+- **建立虛擬環境**:
+   在專案根目錄執行以下指令以建立虛擬環境。此處指定使用 Python 3.12，您可以根據您的環境調整版本。
 
    ```bash
    uv venv -p 3.12 --seed
-   ```
-   這會在專案根目錄建立一個名為 `.venv` 的虛擬環境資料夾。
-
-b. **啟用虛擬環境**:
-   根據您的作業系統和 shell，啟用虛擬環境：
-
-   *   **Linux/macOS (bash/zsh):**
-       ```bash
-       source .venv/bin/activate
-       ```
-   *   **Windows (cmd.exe):**
-       ```bash
-       .venv\Scripts\activate.bat
-       ```
-   *   **Windows (PowerShell):**
-       ```bash
-       .venv\Scripts\Activate.ps1
-       ```
-
-c. **同步依賴套件**:
-   啟用虛擬環境後，執行以下指令來安裝 `pyproject.toml` 檔案中定義的所有依賴套件：
-
-   ```bash
+   source .venv/bin/activate
    uv sync
    ```
+   這會在專案根目錄建立一個名為 `.venv` 的虛擬環境資料夾，並安裝對應套件，需注意 Windows 進入虛擬環境的方式不一樣。
 
 完成以上步驟後，您就可以執行專案中的腳本了。
 
@@ -49,6 +28,7 @@ c. **同步依賴套件**:
 
 1.  **CEEC PDF Scraper (`scrapers/ceec_pdf_scraper.py`)**: 從大考中心（CEEC）網站下載歷屆試題等 PDF 文件。
 2.  **TWSE PDF Scraper (`scrapers/twse_pdf_scraper.py`)**: 從台灣證券交易所（TWSE）公開資訊觀測站下載公司財報等 PDF 文件。
+3.  **MOEX PDF Scraper (`scrapers/moex_pdf_scraper.py`)**: 從台灣考選部（MOEX）下載歷屆試題 PDF。
 
 ---
 
@@ -159,3 +139,56 @@ python scrapers/twse_pdf_scraper.py --co_id 2330 --year 111 --output tsmc_2022 -
 *   請避免過快發送請求；腳本內建的延遲有助於控制請求頻率。
 
 ---
+
+## 3. MOEX PDF Scraper
+
+此工具可自動從[台灣考選部（MOEX）](https://wwwq.moex.gov.tw)下載歷屆試題 PDF 檔案。
+
+### 使用方法
+
+```bash
+python scrapers/moex_pdf_scraper.py --exam <考試代碼> --year <民國年> [OPTIONS]
+```
+
+### 主要參數
+
+*   `--exam <考試代碼>`: **(必要)** 考試代碼，可多個。
+    *   例如：`113080`、`113060`
+*   `--year <民國年>`: **(必要)** 民國年（如 113）。
+*   `--type <檔案類型>`: 指定要下載的檔案類型，可多個。
+    *   `Q`: 題本（預設）
+    *   `M`: 詳解
+    *   範例：`--type Q M` 只抓題本與詳解
+*   `--output <資料夾名稱>`: 輸出資料夾名稱（預設 `moex_papers`）。
+
+### 範例
+
+*   **下載 113 年 113080 考試的題本：**
+    ```bash
+    python scrapers/moex_pdf_scraper.py --exam 113080 --year 113
+    ```
+
+*   **下載多個考試代碼：**
+    ```bash
+    python scrapers/moex_pdf_scraper.py --exam 113080 113060 --year 113
+    ```
+
+*   **只抓題本與詳解：**
+    ```bash
+    python scrapers/moex_pdf_scraper.py --exam 113080 --year 113 --type Q M
+    ```
+
+*   **指定輸出資料夾：**
+    ```bash
+    python scrapers/moex_pdf_scraper.py --exam 113080 --year 113 --output my_moex_pdfs
+    ```
+
+### 輸出
+
+所有下載的 PDF 檔案將儲存於指定的資料夾（預設：`./pdfs/moex_papers/`）。如檔案已存在則自動跳過。
+
+### 注意事項
+
+*   若檔案尚未公布，腳本會自動跳過該檔案。
+*   支援多考試代碼與多檔案類型同時下載。
+*   下載時會顯示進度條。
